@@ -28,7 +28,14 @@ def generate_grad_cam(model, image_array, class_index):
     # Última capa convolucional (ajusta el nombre si cambia)
     last_conv_layer = model.get_layer("conv10_thisone")
 
-    output = model.output[:, class_index]
+        # Obtener salida correcta del modelo
+    if isinstance(model.output, list):
+        output_tensor = model.output[0]
+    else:
+        output_tensor = model.output
+
+    output = output_tensor[:, class_index]
+
     grads = K.gradients(output, last_conv_layer.output)[0]
     pooled_grads = K.mean(grads, axis=(0, 1, 2))
 
