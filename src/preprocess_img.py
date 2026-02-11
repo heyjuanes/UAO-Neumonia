@@ -1,24 +1,39 @@
+"""
+Módulo para preprocesamiento de imágenes médicas.
+"""
+
 import cv2
 import numpy as np
 
 
-def preprocess_img(array):
+def preprocess_image(img: np.ndarray) -> np.ndarray:
     """
-    Preprocesa la imagen:
+    Realiza el preprocesamiento requerido:
     - Resize a 512x512
-    - Escala de grises
-    - CLAHE
-    - Normalización [0,1]
-    - Conversión a batch (tensor)
+    - Conversión a escala de grises
+    - Ecualización con CLAHE
+    - Normalización entre 0 y 1
+    - Conversión a batch (tensor 4D)
+
+    :param img: Imagen en formato numpy array
+    :return: Imagen preprocesada lista para el modelo
     """
-    array = cv2.resize(array, (512, 512))
-    array = cv2.cvtColor(array, cv2.COLOR_BGR2GRAY)
 
-    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(4, 4))
-    array = clahe.apply(array)
+    # 1️⃣ Resize
+    img_resized = cv2.resize(img, (512, 512))
 
-    array = array / 255.0
-    array = np.expand_dims(array, axis=-1)
-    array = np.expand_dims(array, axis=0)
+    # 2️⃣ Convertir a escala de grises
+    img_gray = cv2.cvtColor(img_resized, cv2.COLOR_RGB2GRAY)
 
-    return array
+    # 3️⃣ CLAHE (ecualización adaptativa)
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+    img_clahe = clahe.apply(img_gray)
+
+    # 4️⃣ Normalizar entre 0 y 1
+    img_normalized = img_clahe / 255.0
+
+    # 5️⃣ Expandir dimensiones (batch y canal)
+    img_batch = np.expand_dims(img_normalized, axis=-1)  # canal
+    img_batch = np.expand_dims(img_batch, axis=0)        # batch
+
+    return img_batch
