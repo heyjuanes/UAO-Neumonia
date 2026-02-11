@@ -7,6 +7,10 @@ from tkinter import ttk, font, filedialog, Entry
 from tkinter.messagebox import askokcancel, showinfo, WARNING
 import getpass
 from PIL import ImageTk, Image
+#----
+import tensorflow as tf
+from keras import backend as K
+#----
 import csv
 import pyautogui
 import tkcap
